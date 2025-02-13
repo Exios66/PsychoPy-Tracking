@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Eye Tracking Analysis Pipeline</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+            text-align: center;
+        }
+        header {
+            background-color: #333;
+            color: white;
+            padding: 15px;
+        }
+        nav ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        nav ul li {
+            display: inline;
+            margin: 0 15px;
+        }
+        nav ul li a {
+            color: white;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        main {
+            padding: 20px;
+        }
+        section {
+            background-color: white;
+            margin: 20px auto;
+            padding: 20px;
+            border-radius: 8px;
+            width: 50%;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        button {
+            padding: 10px 20px;
+            border: none;
+            background-color: #28a745;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+        button:hover {
+            background-color: #218838;
+        }
+        footer {
+            margin-top: 20px;
+            background-color: #333;
+            color: white;
+            padding: 10px;
+        }
+        textarea {
+            width: 100%;
+            height: 150px;
+        }
+        @media (prefers-color-scheme: dark) {
+            body {
+                background-color: #222;
+                color: white;
+            }
+            section {
+                background-color: #333;
+                color: white;
+            }
+            button {
+                background-color: #007bff;
+            }
+            button:hover {
+                background-color: #0056b3;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Eye Tracking Analysis Pipeline</h1>
+        <nav>
+            <ul>
+                <li><a href="#upload">Upload Data</a></li>
+                <li><a href="#process">Process Data</a></li>
+                <li><a href="#results">Results</a></li>
+                <li><a href="#logs">Logs</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <section id="upload">
+            <h2>Upload Eye Tracking Data</h2>
+            <input type="file" id="fileInput" accept=".csv">
+            <button type="button" id="uploadButton">Upload</button>
+        </section>
+
+        <section id="process">
+            <h2>Process Data</h2>
+            <button type="button" id="processButton">Start Processing</button>
+            <p id="processStatus"></p>
+        </section>
+
+        <section id="results">
+            <h2>Results</h2>
+            <div id="visualization">
+                <p>Generated charts and analysis will appear here.</p>
+                <canvas id="chartCanvas"></canvas>
+            </div>
+            <button type="button" id="downloadButton">Download Report</button>
+        </section>
+
+        <section id="logs">
+            <h2>Logs</h2>
+            <textarea id="logOutput" readonly></textarea>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2025 Eye Tracking Analysis Project. All Rights Reserved.</p>
+    </footer>
+    
+    <script>
+        document.getElementById("uploadButton").addEventListener("click", function() {
+            const fileInput = document.getElementById("fileInput");
+            if (fileInput.files.length === 0) {
+                alert("Please select a file to upload.");
+                return;
+            }
+            document.getElementById("processStatus").innerText = "File uploaded successfully.";
+        });
+        
+        document.getElementById("processButton").addEventListener("click", function() {
+            document.getElementById("processStatus").innerText = "Processing data...";
+            setTimeout(() => {
+                document.getElementById("processStatus").innerText = "Processing complete.";
+            }, 2000);
+        });
+        
+        document.getElementById("downloadButton").addEventListener("click", function() {
+            const logText = "Analysis report generated successfully.";
+            const blob = new Blob([logText], { type: "text/plain" });
+            const link = document.createElement("a");
+            link.href = URL.createObjectURL(blob);
+            link.download = "report.txt";
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        });
+    </script>
+</body>
+</html>
