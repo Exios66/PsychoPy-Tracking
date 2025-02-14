@@ -1,158 +1,357 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Eye Tracking Analysis Pipeline</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: #f4f4f4;
-            text-align: center;
-        }
-        header {
-            background-color: #333;
-            color: white;
-            padding: 15px;
-        }
-        nav ul {
-            list-style-type: none;
-            padding: 0;
-        }
-        nav ul li {
-            display: inline;
-            margin: 0 15px;
-        }
-        nav ul li a {
-            color: white;
-            text-decoration: none;
-            font-weight: bold;
-        }
-        main {
-            padding: 20px;
-        }
-        section {
-            background-color: white;
-            margin: 20px auto;
-            padding: 20px;
-            border-radius: 8px;
-            width: 50%;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-        }
-        button {
-            padding: 10px 20px;
-            border: none;
-            background-color: #28a745;
-            color: white;
-            font-size: 16px;
-            cursor: pointer;
-            border-radius: 5px;
-        }
-        button:hover {
-            background-color: #218838;
-        }
-        footer {
-            margin-top: 20px;
-            background-color: #333;
-            color: white;
-            padding: 10px;
-        }
-        textarea {
-            width: 100%;
-            height: 150px;
-        }
-        @media (prefers-color-scheme: dark) {
-            body {
-                background-color: #222;
-                color: white;
-            }
-            section {
-                background-color: #333;
-                color: white;
-            }
-            button {
-                background-color: #007bff;
-            }
-            button:hover {
-                background-color: #0056b3;
-            }
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Eye Tracking Analysis Pipeline</title>
+  <!-- Chart.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- PapaParse CDN -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
+  <style>
+    /* Base Light Theme Styles */
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f4f4f4;
+      text-align: center;
+      color: #333;
+      transition: background-color 0.3s, color 0.3s;
+    }
+    header {
+      background-color: #333;
+      color: white;
+      padding: 15px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    nav ul {
+      list-style-type: none;
+      padding: 0;
+      margin: 10px 0;
+    }
+    nav ul li {
+      display: inline;
+      margin: 0 15px;
+    }
+    nav ul li a {
+      color: white;
+      text-decoration: none;
+      font-weight: bold;
+    }
+    /* Theme Toggle Button in Header */
+    #themeToggle {
+      padding: 5px 10px;
+      font-size: 14px;
+      margin-top: 10px;
+      border: none;
+      border-radius: 5px;
+      background-color: #28a745;
+      color: white;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+    #themeToggle:hover {
+      background-color: #218838;
+    }
+    main {
+      padding: 20px;
+    }
+    section {
+      background-color: white;
+      margin: 20px auto;
+      padding: 20px;
+      border-radius: 8px;
+      width: 90%;
+      max-width: 600px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      transition: background-color 0.3s, color 0.3s;
+    }
+    button {
+      padding: 10px 20px;
+      border: none;
+      background-color: #28a745;
+      color: white;
+      font-size: 16px;
+      cursor: pointer;
+      border-radius: 5px;
+      margin-top: 10px;
+      transition: background-color 0.3s;
+    }
+    button:hover {
+      background-color: #218838;
+    }
+    footer {
+      margin-top: 20px;
+      background-color: #333;
+      color: white;
+      padding: 10px;
+      transition: background-color 0.3s, color 0.3s;
+    }
+    textarea {
+      width: 100%;
+      height: 150px;
+      resize: vertical;
+    }
+    canvas {
+      max-width: 100%;
+      height: auto;
+    }
+
+    /* Explicit Dark Theme Overrides */
+    body.dark {
+      background-color: #222;
+      color: #ddd;
+    }
+    body.dark header {
+      background-color: #333;
+      color: #ddd;
+    }
+    body.dark nav ul li a {
+      color: #ddd;
+    }
+    body.dark section {
+      background-color: #333;
+      color: #ddd;
+    }
+    body.dark button {
+      background-color: #007bff;
+    }
+    body.dark button:hover {
+      background-color: #0056b3;
+    }
+    body.dark footer {
+      background-color: #333;
+      color: #ddd;
+    }
+    body.dark #themeToggle {
+      background-color: #007bff;
+    }
+    body.dark #themeToggle:hover {
+      background-color: #0056b3;
+    }
+
+    /* Fallback Media Query for system preference if no explicit choice is set */
+    @media (prefers-color-scheme: dark) {
+      body:not(.light):not(.dark) {
+        background-color: #222;
+        color: #ddd;
+      }
+      @supports (color: color-mix(in srgb, red, blue)) {
+        /* Optional: Use more advanced color mixing if supported */
+      }
+    }
+  </style>
 </head>
 <body>
-    <header>
-        <h1>Eye Tracking Analysis Pipeline</h1>
-        <nav>
-            <ul>
-                <li><a href="#upload">Upload Data</a></li>
-                <li><a href="#process">Process Data</a></li>
-                <li><a href="#results">Results</a></li>
-                <li><a href="#logs">Logs</a></li>
-            </ul>
-        </nav>
-    </header>
+  <header>
+    <h1>Eye Tracking Analysis Pipeline</h1>
+    <nav>
+      <ul>
+        <li><a href="#upload">Upload Data</a></li>
+        <li><a href="#process">Process Data</a></li>
+        <li><a href="#results">Results</a></li>
+        <li><a href="#logs">Logs</a></li>
+      </ul>
+    </nav>
+    <!-- Theme Toggle Button -->
+    <button id="themeToggle">Switch to Dark Theme</button>
+  </header>
 
-    <main>
-        <section id="upload">
-            <h2>Upload Eye Tracking Data</h2>
-            <input type="file" id="fileInput" accept=".csv">
-            <button type="button" id="uploadButton">Upload</button>
-        </section>
+  <main>
+    <!-- Upload Section -->
+    <section id="upload">
+      <h2>Upload Eye Tracking Data</h2>
+      <input type="file" id="fileInput" accept=".csv" />
+      <br />
+      <button type="button" id="uploadButton">Upload</button>
+    </section>
 
-        <section id="process">
-            <h2>Process Data</h2>
-            <button type="button" id="processButton">Start Processing</button>
-            <p id="processStatus"></p>
-        </section>
+    <!-- Process Section -->
+    <section id="process">
+      <h2>Process Data</h2>
+      <button type="button" id="processButton">Start Processing</button>
+      <p id="processStatus"></p>
+    </section>
 
-        <section id="results">
-            <h2>Results</h2>
-            <div id="visualization">
-                <p>Generated charts and analysis will appear here.</p>
-                <canvas id="chartCanvas"></canvas>
-            </div>
-            <button type="button" id="downloadButton">Download Report</button>
-        </section>
+    <!-- Results Section -->
+    <section id="results">
+      <h2>Results</h2>
+      <div id="visualization">
+        <p>Generated charts and analysis will appear below:</p>
+        <canvas id="chartCanvas"></canvas>
+      </div>
+      <button type="button" id="downloadButton">Download Report</button>
+    </section>
 
-        <section id="logs">
-            <h2>Logs</h2>
-            <textarea id="logOutput" readonly></textarea>
-        </section>
-    </main>
+    <!-- Logs Section -->
+    <section id="logs">
+      <h2>Logs</h2>
+      <textarea id="logOutput" readonly></textarea>
+    </section>
+  </main>
 
-    <footer>
-        <p>&copy; 2025 Eye Tracking Analysis Project. All Rights Reserved.</p>
-    </footer>
-    
-    <script>
-        document.getElementById("uploadButton").addEventListener("click", function() {
-            const fileInput = document.getElementById("fileInput");
-            if (fileInput.files.length === 0) {
-                alert("Please select a file to upload.");
-                return;
+  <footer>
+    <p>&copy; 2025 Eye Tracking Analysis Project. All Rights Reserved.</p>
+  </footer>
+
+  <script>
+    // GLOBAL VARIABLES
+    let parsedData = null;
+
+    // Utility: Log messages with a timestamp
+    function log(message) {
+      const logOutput = document.getElementById("logOutput");
+      const timeStamp = new Date().toLocaleTimeString();
+      logOutput.value += `[${timeStamp}] ${message}\n`;
+      logOutput.scrollTop = logOutput.scrollHeight;
+    }
+
+    // Chart generation function using Chart.js
+    function generateChart(labels, dataPoints) {
+      const ctx = document.getElementById("chartCanvas").getContext("2d");
+      if (window.myChart) {
+        window.myChart.destroy();
+      }
+      window.myChart = new Chart(ctx, {
+        type: "line",
+        data: {
+          labels: labels,
+          datasets: [{
+            label: "Gaze Duration (ms)",
+            data: dataPoints,
+            backgroundColor: "rgba(75, 192, 192, 0.2)",
+            borderColor: "rgba(75, 192, 192, 1)",
+            borderWidth: 2,
+            fill: true,
+            tension: 0.3
+          }]
+        },
+        options: {
+          responsive: true,
+          scales: {
+            x: {
+              title: {
+                display: true,
+                text: "Time (s)"
+              }
+            },
+            y: {
+              title: {
+                display: true,
+                text: "Duration (ms)"
+              },
+              beginAtZero: true
             }
-            document.getElementById("processStatus").innerText = "File uploaded successfully.";
+          }
+        }
+      });
+    }
+
+    // Theme Toggle Logic
+    const themeToggleButton = document.getElementById("themeToggle");
+
+    function updateThemeToggleText() {
+      if (document.body.classList.contains("dark")) {
+        themeToggleButton.innerText = "Switch to Light Theme";
+      } else {
+        themeToggleButton.innerText = "Switch to Dark Theme";
+      }
+    }
+
+    // Initialize theme based on saved preference or system setting
+    (function initializeTheme() {
+      const savedTheme = localStorage.getItem("theme");
+      if (savedTheme) {
+        document.body.classList.toggle("dark", savedTheme === "dark");
+      } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        document.body.classList.add("dark");
+      }
+      updateThemeToggleText();
+    })();
+
+    // Toggle theme on button click
+    themeToggleButton.addEventListener("click", function() {
+      document.body.classList.toggle("dark");
+      const theme = document.body.classList.contains("dark") ? "dark" : "light";
+      localStorage.setItem("theme", theme);
+      updateThemeToggleText();
+      log(`Theme switched to ${theme}.`);
+    });
+
+    // Event listener for file upload
+    document.getElementById("uploadButton").addEventListener("click", function() {
+      const fileInput = document.getElementById("fileInput");
+      if (fileInput.files.length === 0) {
+        alert("Please select a CSV file to upload.");
+        log("Upload attempted without selecting a file.");
+        return;
+      }
+      const file = fileInput.files[0];
+      log(`Selected file: ${file.name}`);
+      Papa.parse(file, {
+        header: true,
+        dynamicTyping: true,
+        complete: function(results) {
+          parsedData = results.data;
+          log(`File "${file.name}" parsed successfully. Rows: ${parsedData.length}`);
+          document.getElementById("processStatus").innerText = "File uploaded and parsed successfully.";
+        },
+        error: function(error) {
+          log(`Error parsing file: ${error}`);
+          alert("Error parsing file. Please check the file format.");
+          document.getElementById("processStatus").innerText = "Error in file upload.";
+        }
+      });
+    });
+
+    // Event listener for processing data
+    document.getElementById("processButton").addEventListener("click", function() {
+      if (!parsedData) {
+        alert("No data uploaded. Please upload a CSV file first.");
+        log("Processing attempted without uploaded data.");
+        return;
+      }
+      document.getElementById("processStatus").innerText = "Processing data...";
+      log("Data processing started.");
+      setTimeout(() => {
+        const labels = [];
+        const dataPoints = [];
+        parsedData.forEach((row, index) => {
+          labels.push(row.timestamp || `T${index + 1}`);
+          dataPoints.push(row.gazeDuration || Math.floor(Math.random() * 1000));
         });
-        
-        document.getElementById("processButton").addEventListener("click", function() {
-            document.getElementById("processStatus").innerText = "Processing data...";
-            setTimeout(() => {
-                document.getElementById("processStatus").innerText = "Processing complete.";
-            }, 2000);
-        });
-        
-        document.getElementById("downloadButton").addEventListener("click", function() {
-            const logText = "Analysis report generated successfully.";
-            const blob = new Blob([logText], { type: "text/plain" });
-            const link = document.createElement("a");
-            link.href = URL.createObjectURL(blob);
-            link.download = "report.txt";
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-        });
-    </script>
+        generateChart(labels, dataPoints);
+        document.getElementById("processStatus").innerText = "Processing complete. See chart below.";
+        log("Data processing complete. Chart generated.");
+      }, 2000);
+    });
+
+    // Event listener for downloading the report
+    document.getElementById("downloadButton").addEventListener("click", function() {
+      if (!parsedData) {
+        alert("No processed data available. Please process the data first.");
+        log("Report download attempted without processed data.");
+        return;
+      }
+      let report = "Eye Tracking Analysis Report\n\n";
+      report += `Total Data Points: ${parsedData.length}\n`;
+      report += "Sample Data (first 5 rows):\n";
+      parsedData.slice(0, 5).forEach((row, i) => {
+        report += `${i + 1}: ${JSON.stringify(row)}\n`;
+      });
+      report += "\nReport generated successfully.";
+      const blob = new Blob([report], { type: "text/plain" });
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(blob);
+      link.download = "eye_tracking_report.txt";
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      log("Report downloaded.");
+    });
+  </script>
 </body>
 </html>
